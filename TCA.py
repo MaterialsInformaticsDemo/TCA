@@ -14,9 +14,9 @@ class TCA():
         '''
         self.dim = dim
         self.lamda = lamda
-        self.kernel = RBF(gamma,"fixed")
+        self.kernel = 0.5*RBF(gamma,"fixed")
 
-    def fit(self, Xs, Xt):
+    def fit(self, Xs, Xt, ):
         '''
         :param Xs: ns * m_feature, source domain data 
         :param Xt: nt * m_feature, target domain data
@@ -30,15 +30,19 @@ class TCA():
         K = self.kernel(X)
         # cal matrix L 
         ns, nt = len(Xs), len(Xt)
+        if self.dim > (ns + nt):
+            raise DimensionError('The maximum number of dimensions should be smaller than', (ns + nt))
+        else:pass
         e = np.vstack((1 / ns * np.ones((ns, 1)), -1 / nt * np.ones((nt, 1))))
         L = e * e.T
         # cal centering matrix H page 202 the last pargraph at left side
-        n, m = X.shape
+        n, _ = X.shape
         H = np.eye(n) - 1 / n * np.ones((n, n))
         # page 202 the last pargraph at right side
         matrix = (K @ L @ K + self.lamda * np.eye(n)) @ K @ H @ K.T
         # cal eigenvalues : w, eigenvectors :V
         w, V = scipy.linalg.eig(matrix)
+        w, V = w.real, V.real
         # peak out the first self.dim components
         ind = np.argsort(w)
         A = V[:, ind[:self.dim]]
@@ -47,4 +51,6 @@ class TCA():
         Xs_new, Xt_new = Z[:ns, :], Z[ns:, :]
         return Xs_new, Xt_new
 
-    
+
+class DimensionError(Exception):
+    pass
