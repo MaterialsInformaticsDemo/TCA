@@ -6,20 +6,19 @@ using PyPlot
 using Random
 include("TCA.jl")
 
-
 # Set the random seed
 Random.seed!(0)
 
 # source domain training data
-Xs_y = DataFrame(CSV.File("Xs_y.csv"))
+Xs_y = DataFrame(CSV.File("/Users/jacob/Documents/GitHub/TCA/Julia/Xs_y.csv"))
 Xs = Matrix(Xs_y[:, 1:end-1])
 ys = convert(Vector, Xs_y[:, end])
 # target domain training data
-Xt_y = DataFrame(CSV.File("Xt_y.csv"))
+Xt_y = DataFrame(CSV.File("/Users/jacob/Documents/GitHub/TCA/Julia/Xt_y.csv"))
 Xt = Matrix(Xt_y[:, 1:end-1])
 yt = convert(Vector, Xt_y[:, end])
 # test data
-test = DataFrame(CSV.File("Xtest.csv"))
+test = DataFrame(CSV.File("/Users/jacob/Documents/GitHub/TCA/Julia/Xtest.csv"))
 Xtest = Matrix(test[:, 1:end-1])
 ytest = convert(Vector, test[:, end])
 
@@ -36,9 +35,9 @@ println("Without transfer, we have misclassify rate $rate")
 # training on mapped space (4-d) with source (Xs_y.csv) and target domain data (Xt_y.csv), test on testing dataset (Xtest.csv)
 RMSE_list = [rate]
 for j in 1:20
-    model = TCA.TCA(dim=20-j, lambda=0.3, gamma=1.0)
+    model = TCA(dim=20-j, lambda=0.3, gamma=1.0)
     Train_X = vcat(Xs, Xt)
-    Xs_new, Xt_new = TCA.fit(model, Train_X, Xtest)
+    Xs_new, Xt_new  = fit(model,Train_X, Xtest)
     Train_y = vcat(ys, yt)
     transfer_pre_label = DecisionTree.predict(reg, Xs_new)
     transfer_rate = sqrt(mean((transfer_pre_label .- ytest) .^ 2))
