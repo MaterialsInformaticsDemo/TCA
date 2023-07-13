@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 from sklearn.svm import SVC
-from sklearn.metrics import precision_score
 from TCA import TCA
 
 # source domain training data
@@ -18,12 +17,16 @@ Xtest = np.array(test.iloc[:,:-1])
 ytest = np.array(test.iloc[:,-1])
 
 reg = SVC()
+
+def acc(y_pre, y):
+    right = abs(y_pre - y).sum()/2
+    return (len(y_pre) - right)/len(y_pre)
 ################################################################
 # case one 
 # training on target domina data (Xt_y.csv) and test on testing dataset (Xtest.csv)
 pre_label = reg.fit(Xt, yt,).predict(Xtest)
-rate = np.sqrt(precision_score(pre_label,ytest))
-print('Without transfer, we have misclassify rate %f' % rate )
+rate = acc(pre_label,ytest)
+print('Without transfer, we have acc rate %f' % rate )
 
 # case two
 # training on mapped space (4-d) with source (Xs_y.csv) and target domina data (Xt_y.csv), test on testing dataset (Xtest.csv)
@@ -35,10 +38,10 @@ for j in range(len(numbers)):
     Xs_new, Xt_new = model.fit(Train_X,Xtest)
     Train_y = np.hstack((ys,yt))
     transfer_pre_label = reg.fit(Xs_new, Train_y).predict(Xt_new)
-    transfer_rate = np.sqrt(precision_score(transfer_pre_label,ytest))
+    transfer_rate = acc(transfer_pre_label,ytest)
     acc_list.append(transfer_rate)
     print('lamda = {}'.format(numbers[j]))
-    print('With transfer, we have misclassify rate %f' % transfer_rate ,'\n')
+    print('With transfer, we have acc rate %f' % transfer_rate ,'\n')
 
 
 # plot the result
@@ -46,13 +49,14 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 
 fig, ax = plt.subplots()
-x = range(len(acc_list)-1, 0, -1)
+x = numbers
 
-plt.plot(x, acc_list[1:], linestyle='--', color='blue',label='TCA transfer with different lamda')
+plt.plot(x,  acc_list[1:],marker='o',linestyle='-', color='blue',label='TCA transfer with different lamda')
+ax.axhline(y=acc_list[0], color='green', linestyle='--', label='without TCA transfer')
 #ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 
 plt.xlabel('lamda')
-plt.ylabel('RMSE on test data')
+plt.ylabel('classification accuracy on test data')
 
 ax.legend()
 plt.savefig('iteration number.png',bbox_inches = 'tight',dpi=600)
