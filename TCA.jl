@@ -24,6 +24,7 @@ function TCAfit(;Xs, Xt, dim::Int=30, lambda::Float64=1.0, gamma::Float64=1.0)
     w, V = real.(w), real.(V)
 
     ind = sortperm(abs.(w))
+    reverse!(ind)
     A = V[:, ind[1:dim]]
 
     Z = K * A
