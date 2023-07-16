@@ -44,7 +44,7 @@ class TCA():
         w, V = scipy.linalg.eig(matrix)
         w, V = w.real, V.real
         # peak out the first self.dim components
-        ind = np.argsort(w)
+        ind = np.argsort(abs(w))
         A = V[:, ind[:self.dim]]
         # output the mapped data
         Z = K @ A
