@@ -39,7 +39,7 @@ class TCA():
         n, _ = X.shape
         H = np.eye(n) - 1 / n * np.ones((n, n))
         # page 202 the last pargraph at right side
-        matrix = (K @ L @ K + self.lamda * np.eye(n)) @ K @ H @ K.T
+        matrix = np.linalg.inv(K @ L @ K + self.lamda * np.eye(n)) @ K @ H @ K
         # cal eigenvalues : w, eigenvectors :V
         w, V = scipy.linalg.eig(matrix)
         w, V = w.real, V.real

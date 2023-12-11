@@ -18,7 +18,7 @@ function TCAfit(;Xs, Xt, dim::Int=30, lambda::Float64=1.0, gamma::Float64=1.0)
 
     n, _ = size(X)
     H = Matrix{Float64}(I, n, n) - (1 / n) * ones(n, n)
-    matrix = (K * L * K + lambda * Matrix{Float64}(I, n, n)) * K * H * K'
+    matrix = inv(K * L * K + lambda * Matrix{Float64}(I, n, n)) * K * H * K
 
     w, V = eigen(matrix)
     w, V = real.(w), real.(V)
